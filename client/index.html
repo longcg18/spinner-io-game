@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Orbit Collector Demo</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; overflow: hidden;
+    background: #2b241f;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+  #hud {
+    position: fixed; top: 12px; left: 12px;
+    color: #fff; font-size: 20px; font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    z-index: 10;
+  }
+  #gameControls {
+    position: fixed; top: 12px; right: 12px;
+    z-index: 10;
+  }
+  #startButton {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #4a9dff;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  }
+  #hitMessage {
+    position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+    color: #ffb3b3; font-size: 18px; font-weight: bold;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    z-index: 10;
+    opacity: 0.9;
+  }
+  #joystick {
+    position: fixed;
+    left: 24px;
+    bottom: 24px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.09);
+    display: none;
+    touch-action: none;
+    z-index: 10;
+  }
+  #stick {
+    position: absolute;
+    left: 30px;
+    top: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    touch-action: none;
+  }
+  #hint {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+    color: #ddd; font-size: 13px; opacity: 0.7;
+  }
+  #startOverlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.45);
+    z-index: 9;
+    pointer-events: none;
+  }
+  canvas { display: block; cursor: crosshair; }
+</style>
+</head>
+<body>
+<div id="hud">Điểm: <span id="score">0</span> &nbsp;|&nbsp; Vệ tinh: <span id="orbitCount">0</span> &nbsp;|&nbsp; Tọa độ: <span id="coords">--</span> &nbsp;|&nbsp; Hướng: <span id="direction">--</span> &nbsp;|&nbsp; Trạng thái: <span id="status">Đang kết nối...</span></div>
+<div id="gameControls">
+  <button id="startButton">Start</button>
+</div>
+<div id="hitMessage"></div>
+<div id="startOverlay">Nhấn Start để bắt đầu</div>
+<div id="joystick">
+  <div id="stick"></div>
+</div>
+<div id="hint">Di chuột để điều khiển nhân vật · nhặt vòng tròn xanh</div>
+<canvas id="game"></canvas>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
