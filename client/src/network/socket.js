@@ -1,4 +1,5 @@
-const socket = io('http://localhost:7860');
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || window.location.origin;
+const socket = io(SERVER_URL);
 let myId = null;
 let serverState = {
   players: [],

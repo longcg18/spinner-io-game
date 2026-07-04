@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 const Room = require('./game/Room');
 const { PORT } = require('../config');
@@ -12,9 +13,8 @@ const io = new Server(server, {
   },
 });
 
-app.get('/', (req, res) => {
-  res.send('Orbit IO server đang chạy 🎮');
-});
+// Serve client build
+app.use(express.static(path.join(__dirname, '../../public')));
 
 const room = new Room(io);
 

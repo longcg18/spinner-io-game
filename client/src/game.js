@@ -13,6 +13,7 @@ let canvas;
 let ctx;
 let socketApi;
 let inputVector = { x: 0, y: 0 };
+let mouse = { x: 0, y: 0 };
 let useKeyboard = false;
 let useJoystick = false;
 let gameStarted = false;
@@ -290,7 +291,8 @@ export function startGame({ canvas: gameCanvas, ctx: gameCtx, socketApi: api }) 
   ctx = gameCtx;
   socketApi = api;
   gameStarted = false;
-  mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  mouse.x = canvas.width / 2;
+  mouse.y = canvas.height / 2;
 
   setInterval(() => {
     if (gameStarted) sendInput();
