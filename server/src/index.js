@@ -14,7 +14,7 @@ const io = new Server(server, {
 });
 
 // Serve client build
-app.use(express.static(path.join(__dirname, '../../public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 const room = new Room(io);
 
