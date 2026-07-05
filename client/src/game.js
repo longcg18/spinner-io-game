@@ -9,6 +9,8 @@ const killsCountEl = document.getElementById('killsCount');
 const coordsEl = document.getElementById('coords');
 const directionEl = document.getElementById('direction');
 const hitMessageEl = document.getElementById('hitMessage');
+const topScoreListEl = document.getElementById('topScoreList');
+const topKillListEl = document.getElementById('topKillList');
 const joystickEl = document.getElementById('joystick');
 const stickEl = document.getElementById('stick');
 const boostBtnEl = document.getElementById('boostBtn');
@@ -210,8 +212,18 @@ if (boostBtnEl) {
   boostBtnEl.addEventListener('lostpointercapture', onBoostUp);
 }
 
-function drawPlayer(ctx, x, y, radius, name, angle, skinId) {
+function drawPlayer(ctx, x, y, radius, name, angle, skinId, isProtected = false, t = 0) {
   ctx.save();
+
+  if (isProtected) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, radius + 8 + Math.sin(t / 220) * 2, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(68, 220, 255, ${0.45 + Math.sin(t / 240) * 0.15})`;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.restore();
+  }
   
   // Draw name above the circle
   if (name) {
@@ -368,6 +380,41 @@ function getCardinalDirection(angle) {
   return 'E';
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function updateLeaderboard(state) {
+  if (!topScoreListEl || !topKillListEl) return;
+
+  const players = [...state.players].sort((a, b) => b.score - a.score);
+  const topScorePlayers = players.slice(0, 3);
+  const topKillPlayers = [...players].sort((a, b) => (b.kills || 0) - (a.kills || 0)).slice(0, 3);
+
+  topScoreListEl.innerHTML = topScorePlayers.length
+    ? topScorePlayers.map((player, index) => `
+        <div class="leaderboard-row">
+          <span>${index + 1}. ${escapeHtml(player.name || 'Player')}</span>
+          <b>${player.score}</b>
+        </div>
+      `).join('')
+    : '<div class="leaderboard-row"><span>Chưa có dữ liệu</span><b>0</b></div>';
+
+  topKillListEl.innerHTML = topKillPlayers.length
+    ? topKillPlayers.map((player, index) => `
+        <div class="leaderboard-row">
+          <span>${index + 1}. ${escapeHtml(player.name || 'Player')}</span>
+          <b>${player.kills || 0}</b>
+        </div>
+      `).join('')
+    : '<div class="leaderboard-row"><span>Chưa có dữ liệu</span><b>0</b></div>';
+}
+
 function updateHud(state, myId) {
   const me = state.players.find(p => p.id === myId);
   if (!me) {
@@ -394,6 +441,8 @@ function updateHud(state, myId) {
     hitMessageEl.textContent = `Bị ${state.lastHit.attackerName} đánh trúng! Điểm: ${me.score} - Vệ tinh: ${me.orbits.length}`;
     hitTimer = 120;
   }
+
+  updateLeaderboard(state);
 }
 
 function updateHitMessage() {
@@ -486,7 +535,7 @@ function drawScene(t) {
     const rx = rp.x - camX;
     const ry = rp.y - camY;
 
-    drawPlayer(ctx, rx, ry, player.radius, player.name, player.angle, player.skinId);
+    drawPlayer(ctx, rx, ry, player.radius, player.name, player.angle, player.skinId, player.isProtected, t);
     const total = player.orbits.length;
     player.orbits.forEach((orbit, index) => {
       const angleOffset = (index / total) * Math.PI * 2;

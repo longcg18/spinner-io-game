@@ -177,6 +177,9 @@ class Room {
         const dx = orbit.x - target.x;
         const dy = orbit.y - target.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
+        if (target.protectionTicks > 0) {
+          continue;
+        }
         if (dist < orbit.radius + target.radius) {
           orbit.player.removeOrbit(orbit.orbit);
           orbit.player.kills += 1;

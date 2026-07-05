@@ -1,4 +1,4 @@
-const { MAP_WIDTH, MAP_HEIGHT, PLAYER_RADIUS, PLAYER_SPEED, ORBIT_RADIUS_BASE, ORBIT_RADIUS_STEP } = require('../../../shared/constants');
+const { MAP_WIDTH, MAP_HEIGHT, PLAYER_RADIUS, PLAYER_SPEED, ORBIT_RADIUS_BASE, ORBIT_RADIUS_STEP, SPAWN_PROTECTION_TICKS } = require('../../../shared/constants');
 
 class Player {
   constructor(id, name = 'Player', skinId = 0) {
@@ -15,6 +15,7 @@ class Player {
     this.input = { x: this.x, y: this.y };
     this.angle = 0;
     this.orbits = [];
+    this.protectionTicks = SPAWN_PROTECTION_TICKS;
   }
 
   setInput(x, y) {
@@ -37,6 +38,10 @@ class Player {
       this.stamina = Math.max(0, this.stamina - 1.5); // Consume 1.5 stamina per tick (~45/s)
     } else {
       this.stamina = Math.min(100, this.stamina + 0.6); // Recover 0.6 stamina per tick (~18/s)
+    }
+
+    if (this.protectionTicks > 0) {
+      this.protectionTicks = Math.max(0, this.protectionTicks - 1);
     }
 
     const dx = this.input.x - this.x;
@@ -82,6 +87,7 @@ class Player {
       skinId: this.skinId,
       stamina: this.stamina,
       isBoosting: this.isBoosting,
+      isProtected: this.protectionTicks > 0,
     };
   }
 }

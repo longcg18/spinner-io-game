@@ -43,6 +43,59 @@
       opacity: 0.9;
     }
 
+    #leaderboard {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      min-width: 220px;
+      background: rgba(0, 0, 0, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 13px;
+      z-index: 10;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .leaderboard-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ffd166;
+      margin-bottom: 8px;
+    }
+
+    .leaderboard-section {
+      margin-top: 6px;
+    }
+
+    .leaderboard-section-title {
+      font-size: 11px;
+      color: #9ad7ff;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .leaderboard-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 4px 7px;
+    }
+
     /* ── Mobile Controls ── */
     #joystick {
       position: fixed;
@@ -314,6 +367,17 @@
         id="direction">--</span> &nbsp;|&nbsp; Trạng thái: <span id="status">Đang kết nối...</span></div>
     <div id="staminaContainer" style="height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden; margin-top: 8px;">
       <div id="staminaBar" style="width: 100%; height: 100%; background: linear-gradient(90deg, #ff9a00, #ff3d00); box-shadow: 0 0 6px #ff3d00; transition: width 0.05s linear;"></div>
+    </div>
+  </div>
+  <div id="leaderboard">
+    <div class="leaderboard-title">Bảng xếp hạng</div>
+    <div class="leaderboard-section">
+      <div class="leaderboard-section-title">Top điểm</div>
+      <div id="topScoreList" class="leaderboard-list"></div>
+    </div>
+    <div class="leaderboard-section">
+      <div class="leaderboard-section-title">Top hạ gục</div>
+      <div id="topKillList" class="leaderboard-list"></div>
     </div>
   </div>
   <div id="hitMessage"></div>
