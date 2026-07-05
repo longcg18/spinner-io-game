@@ -11,6 +11,8 @@ const directionEl = document.getElementById('direction');
 const hitMessageEl = document.getElementById('hitMessage');
 const joystickEl = document.getElementById('joystick');
 const stickEl = document.getElementById('stick');
+const boostBtnEl = document.getElementById('boostBtn');
+const hintEl = document.getElementById('hint');
 
 const playerSkins = [];
 const skinSrcs = [player1ImgSrc, player2ImgSrc, player3ImgSrc, player4ImgSrc];
@@ -38,10 +40,12 @@ let gameStarted = false;
 let isBoosting = false;
 let hitTimer = 0;
 let activePointerId = null;
+let boostPointerId = null;
 let particles = [];
 let flashOpacity = 0;
 let lastCamX = 0;
 let lastCamY = 0;
+let isTouchDevice = false;
 
 // Client-side interpolation: stores smoothed display positions for each entity
 const renderPositions = new Map(); // id -> { x, y }
@@ -100,19 +104,41 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
+// ── Touch device detection & mobile controls visibility ──
+function showMobileControls() {
+  if (joystickEl) joystickEl.style.display = 'flex';
+  if (boostBtnEl) boostBtnEl.style.display = 'flex';
+  if (hintEl) hintEl.style.display = 'none';
+}
+
+function detectTouchDevice() {
+  if (isTouchDevice) return;
+  isTouchDevice = true;
+  showMobileControls();
+}
+
+// Show on first touch (handles touch laptops / hybrid devices gracefully)
+window.addEventListener('touchstart', detectTouchDevice, { once: true });
+// Also check immediately using pointer media query
+if (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+  isTouchDevice = true;
+  // Defer until DOM is ready (called at module init time)
+  requestAnimationFrame(showMobileControls);
+}
+
 function resetStick() {
   if (!stickEl) return;
-  stickEl.style.transform = 'translate(0px, 0px)';
+  stickEl.style.transform = 'translate(-50%, -50%)';
 }
 
 function setJoystickDirection(dx, dy) {
-  const maxRadius = 40;
+  const maxRadius = 45;
   const distance = Math.min(Math.hypot(dx, dy), maxRadius);
   const angle = Math.atan2(dy, dx);
   const x = Math.cos(angle) * distance;
   const y = Math.sin(angle) * distance;
   if (stickEl) {
-    stickEl.style.transform = `translate(${x}px, ${y}px)`;
+    stickEl.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
   }
   const norm = distance > 8 ? 1 : 0;
   inputVector.x = norm * Math.cos(angle);
@@ -156,6 +182,32 @@ if (joystickEl) {
   joystickEl.addEventListener('pointerup', onJoystickPointerUp);
   joystickEl.addEventListener('pointercancel', onJoystickPointerUp);
   joystickEl.addEventListener('lostpointercapture', onJoystickPointerUp);
+}
+
+// ── Boost button (mobile) ──
+function onBoostDown(e) {
+  isBoosting = true;
+  boostPointerId = e.pointerId;
+  if (boostBtnEl) {
+    boostBtnEl.classList.add('active');
+    boostBtnEl.setPointerCapture(boostPointerId);
+  }
+  e.preventDefault();
+}
+
+function onBoostUp(e) {
+  if (e.pointerId !== boostPointerId) return;
+  isBoosting = false;
+  boostPointerId = null;
+  if (boostBtnEl) boostBtnEl.classList.remove('active');
+  e.preventDefault();
+}
+
+if (boostBtnEl) {
+  boostBtnEl.addEventListener('pointerdown', onBoostDown);
+  boostBtnEl.addEventListener('pointerup', onBoostUp);
+  boostBtnEl.addEventListener('pointercancel', onBoostUp);
+  boostBtnEl.addEventListener('lostpointercapture', onBoostUp);
 }
 
 function drawPlayer(ctx, x, y, radius, name, angle, skinId) {

@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
+const https = require('https');
 const { Server } = require('socket.io');
 const Room = require('./game/Room');
 const { PORT } = require('../config');
@@ -15,6 +16,11 @@ const io = new Server(server, {
 
 // Serve client build
 app.use(express.static(path.join(__dirname, '../public')));
+
+// Health check endpoint – used by Render and uptime monitors to prevent sleep
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: Math.floor(process.uptime()) });
+});
 
 const room = new Room(io);
 
@@ -40,4 +46,21 @@ room.start();
 
 server.listen(PORT, () => {
   console.log(`Server đang chạy tại port ${PORT}`);
+
+  // Self-ping every 14 minutes to prevent Render free tier from sleeping
+  const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
+  if (RENDER_URL) {
+    const pingUrl = `${RENDER_URL}/health`;
+    setInterval(() => {
+      const protocol = pingUrl.startsWith('https') ? https : require('http');
+      protocol.get(pingUrl, (res) => {
+        console.log(`[keep-alive] ping ${pingUrl} → ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.warn('[keep-alive] ping failed:', err.message);
+      });
+    }, 14 * 60 * 1000); // 14 minutes
+    console.log(`[keep-alive] Self-ping enabled → ${pingUrl}`);
+  } else {
+    console.log('[keep-alive] RENDER_EXTERNAL_URL not set – skipping self-ping');
+  }
 });

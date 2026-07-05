@@ -43,29 +43,88 @@
       opacity: 0.9;
     }
 
+    /* ── Mobile Controls ── */
     #joystick {
       position: fixed;
       left: 24px;
-      bottom: 24px;
-      width: 120px;
-      height: 120px;
+      bottom: 30px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.07);
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 20px rgba(0,0,0,0.4), inset 0 0 16px rgba(255,255,255,0.04);
       display: none;
       touch-action: none;
-      z-index: 10;
+      z-index: 20;
+      backdrop-filter: blur(4px);
     }
 
     #stick {
       position: absolute;
-      left: 30px;
-      top: 30px;
-      width: 60px;
-      height: 60px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      background: radial-gradient(circle at 38% 35%, rgba(255,255,255,0.95), rgba(180,210,255,0.7));
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35), 0 0 10px rgba(74,157,255,0.4);
       touch-action: none;
+      transition: box-shadow 0.1s;
+    }
+
+    /* Boost button */
+    #boostBtn {
+      position: fixed;
+      right: 28px;
+      bottom: 38px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 150, 0, 0.7);
+      background: radial-gradient(circle at 40% 38%, rgba(255,180,40,0.22), rgba(255,80,0,0.18));
+      box-shadow: 0 0 20px rgba(255, 120, 0, 0.4), inset 0 0 12px rgba(255,160,0,0.1);
+      color: #ffd700;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      z-index: 20;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: box-shadow 0.12s, transform 0.12s, background 0.12s;
+    }
+
+    #boostBtn.active {
+      background: radial-gradient(circle at 40% 38%, rgba(255,220,60,0.55), rgba(255,100,0,0.45));
+      box-shadow: 0 0 32px rgba(255, 180, 0, 0.8), inset 0 0 16px rgba(255,200,0,0.2);
+      transform: scale(0.94);
+    }
+
+    #boostBtn .boost-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    /* Stamina ring on boost button */
+    #boostStaminaRing {
+      position: absolute;
+      inset: -5px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: #ff9a00;
+      border-right-color: #ff9a00;
+      animation: none;
+      pointer-events: none;
     }
 
     #hint {
@@ -79,6 +138,7 @@
       background: rgba(0, 0, 0, 0.4);
       padding: 6px 12px;
       border-radius: 12px;
+      z-index: 10;
     }
 
     #startOverlay {
@@ -282,7 +342,11 @@
   <div id="joystick">
     <div id="stick"></div>
   </div>
-  <div id="hint">Di chuột để điều khiển nhân vật · nhặt vòng tròn xanh</div>
+  <div id="boostBtn" aria-label="Boost">
+    <span class="boost-icon">⚡</span>
+    <span>BOOST</span>
+  </div>
+  <div id="hint">Di chuột để điều khiển · nhặt vòng tròn xanh</div>
   <canvas id="game"></canvas>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script type="module" src="./src/main.js"></script>
