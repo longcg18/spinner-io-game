@@ -103,7 +103,7 @@ class Room {
         if (dist < pickup.radius + player.radius) {
           this.pickups.remove(pickup.id);
           player.score += SCORE_PER_PICKUP;
-          player.addOrbit();
+          player.addOrbit(pickup.type || 'normal');
         }
       }
     }
@@ -143,8 +143,15 @@ class Room {
         const dy = a.y - b.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < a.radius + b.radius) {
-          a.player.removeOrbit(a.orbit);
-          b.player.removeOrbit(b.orbit);
+          a.orbit.hp -= 1;
+          b.orbit.hp -= 1;
+
+          if (a.orbit.hp <= 0) {
+            a.player.removeOrbit(a.orbit);
+          }
+          if (b.orbit.hp <= 0) {
+            b.player.removeOrbit(b.orbit);
+          }
         }
       }
     }

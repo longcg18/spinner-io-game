@@ -59,10 +59,12 @@ class Player {
     }
   }
 
-  addOrbit() {
+  addOrbit(type = 'normal') {
     this.orbits.push({
       angle: Math.random() * Math.PI * 2,
       ring: this.orbits.length % 2,
+      type,
+      hp: type === 'strong' ? 2 : 1,
     });
   }
 

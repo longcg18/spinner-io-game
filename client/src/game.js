@@ -286,6 +286,47 @@ function drawMoon(ctx, x, y, r, rotation) {
   ctx.restore();
 }
 
+function drawStrongShuriken(ctx, x, y, r, rotation) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = '#ff0000'; // Red glow
+
+  ctx.beginPath();
+  for (let i = 0; i < 4; i++) {
+    const angle = (i * Math.PI) / 2;
+    const midAngle = angle + Math.PI / 4;
+    const px = Math.cos(angle) * r;
+    const py = Math.sin(angle) * r;
+    const mx = Math.cos(midAngle) * (r * 0.35);
+    const my = Math.sin(midAngle) * (r * 0.35);
+    if (i === 0) {
+      ctx.moveTo(px, py);
+    } else {
+      ctx.lineTo(px, py);
+    }
+    ctx.lineTo(mx, my);
+  }
+  ctx.closePath();
+  ctx.fillStyle = '#ff0000';
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#ff6666';
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.25, 0, Math.PI * 2);
+  ctx.fillStyle = '#2b241f';
+  ctx.shadowBlur = 0;
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = '#ff6666';
+  ctx.stroke();
+  ctx.restore();
+}
+
+
 function drawShuriken(ctx, x, y, r, rotation) {
   ctx.save();
   ctx.translate(x, y);
@@ -512,7 +553,11 @@ function drawScene(t) {
 
   for (const pickup of state.pickups) {
     const bob = Math.sin(t / 400 + pickup.id.charCodeAt(0)) * 4;
-    drawShuriken(ctx, pickup.x - camX, pickup.y - camY + bob, pickup.radius, t / 1200);
+    if (pickup.type === 'normal') {
+      drawShuriken(ctx, pickup.x - camX, pickup.y - camY + bob, pickup.radius, t / 1200);
+    } else {
+      drawStrongShuriken(ctx, pickup.x - camX, pickup.y - camY + bob, pickup.radius, t / 1200);
+    }
   }
 
   // Interpolate and render all players
@@ -543,7 +588,11 @@ function drawScene(t) {
       const radius = 45 + orbit.ring * 18;
       const ox = rp.x + Math.cos(angle) * radius - camX;
       const oy = rp.y + Math.sin(angle) * radius - camY;
-      drawShuriken(ctx, ox, oy, 11, angle * 1.5);
+      if (orbit.type === 'strong') {
+        drawStrongShuriken(ctx, ox, oy, 11, angle * 1.5);
+      } else {
+        drawShuriken(ctx, ox, oy, 11, angle * 1.5);
+      }
     });
   }
 
