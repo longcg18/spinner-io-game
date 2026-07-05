@@ -1,13 +1,17 @@
 const { MAP_WIDTH, MAP_HEIGHT, PLAYER_RADIUS, PLAYER_SPEED, ORBIT_RADIUS_BASE, ORBIT_RADIUS_STEP } = require('../../../shared/constants');
 
 class Player {
-  constructor(id, name = 'Player') {
+  constructor(id, name = 'Player', skinId = 0) {
     this.id = id;
     this.name = name;
+    this.skinId = skinId;
     this.x = Math.random() * MAP_WIDTH;
     this.y = Math.random() * MAP_HEIGHT;
     this.radius = PLAYER_RADIUS;
     this.score = 0;
+    this.kills = 0;
+    this.stamina = 100;
+    this.isBoosting = false;
     this.input = { x: this.x, y: this.y };
     this.angle = 0;
     this.orbits = [];
@@ -21,16 +25,29 @@ class Player {
     };
   }
 
+  setBoost(boost) {
+    this.isBoosting = boost;
+  }
+
   update() {
+    // 1. Calculate speed based on boosting state and stamina
+    let currentSpeed = PLAYER_SPEED;
+    if (this.isBoosting && this.stamina > 0) {
+      currentSpeed = PLAYER_SPEED * 1.8; // 1.8x speed boost
+      this.stamina = Math.max(0, this.stamina - 1.5); // Consume 1.5 stamina per tick (~45/s)
+    } else {
+      this.stamina = Math.min(100, this.stamina + 0.6); // Recover 0.6 stamina per tick (~18/s)
+    }
+
     const dx = this.input.x - this.x;
     const dy = this.input.y - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist > 0) {
       this.angle = Math.atan2(dy, dx);
     }
-    if (dist > PLAYER_SPEED) {
-      this.x += (dx / dist) * PLAYER_SPEED;
-      this.y += (dy / dist) * PLAYER_SPEED;
+    if (dist > currentSpeed) {
+      this.x += (dx / dist) * currentSpeed;
+      this.y += (dy / dist) * currentSpeed;
     } else {
       this.x = this.input.x;
       this.y = this.input.y;
@@ -59,8 +76,12 @@ class Player {
       y: this.y,
       radius: this.radius,
       score: this.score,
+      kills: this.kills,
       angle: this.angle,
       orbits: this.orbits,
+      skinId: this.skinId,
+      stamina: this.stamina,
+      isBoosting: this.isBoosting,
     };
   }
 }

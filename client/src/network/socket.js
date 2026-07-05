@@ -16,6 +16,8 @@ function updateStatus(text) {
   }
 }
 
+let gameOverCallback = null;
+
 socket.on('connect', () => {
   connected = true;
   updateStatus('Kết nối tới server');
@@ -47,6 +49,12 @@ socket.on('state', (state) => {
   serverState = state;
 });
 
+socket.on('gameOver', (data) => {
+  if (typeof gameOverCallback === 'function') {
+    gameOverCallback(data);
+  }
+});
+
 export function initSocket(statusFn) {
   statusCallback = statusFn;
   return {
@@ -56,12 +64,15 @@ export function initSocket(statusFn) {
         socket.emit('join', pendingJoinName);
       }
     },
-    emitInput: ({ x, y }) => {
+    emitInput: ({ x, y, boost }) => {
       if (!myId) return;
-      socket.emit('input', { x, y });
+      socket.emit('input', { x, y, boost });
     },
     getState: () => serverState,
     getMyId: () => myId,
     isConnected: () => connected,
+    onGameOver: (cb) => {
+      gameOverCallback = cb;
+    },
   };
 }

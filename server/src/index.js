@@ -26,8 +26,8 @@ io.on('connection', (socket) => {
     socket.emit('joined', { id: player.id });
   });
 
-  socket.on('input', ({ x, y }) => {
-    room.handleInput(socket.id, x, y);
+  socket.on('input', ({ x, y, boost }) => {
+    room.handleInput(socket.id, x, y, boost);
   });
 
   socket.on('disconnect', () => {

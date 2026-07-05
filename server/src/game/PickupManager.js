@@ -22,6 +22,16 @@ class PickupManager {
     }
   }
 
+  spawnAt(x, y) {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    this.pickups.set(id, {
+      id,
+      x,
+      y,
+      radius: PICKUP_RADIUS,
+    });
+  }
+
   remove(id) {
     this.pickups.delete(id);
   }
