@@ -13,6 +13,6 @@ module.exports = {
   ORBIT_ITEM_RADIUS: 11,
   ORBIT_SPEED: 0.3,
 
-  TICK_RATE: 30,
+  TICK_RATE: 60,
   SCORE_PER_PICKUP: 10,
 };

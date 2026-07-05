@@ -43,6 +43,10 @@ let flashOpacity = 0;
 let lastCamX = 0;
 let lastCamY = 0;
 
+// Client-side interpolation: stores smoothed display positions for each entity
+const renderPositions = new Map(); // id -> { x, y }
+const LERP_ALPHA = 0.25; // how quickly display catches up to server position (0-1)
+
 const controls = {
   w: false,
   a: false,
@@ -381,10 +385,13 @@ function drawScene(t) {
   let camY = lastCamY;
 
   if (me) {
-    camX = me.x - canvas.width / 2;
-    camY = me.y - canvas.height / 2;
-    lastCamX = camX;
-    lastCamY = camY;
+    const targetCamX = me.x - canvas.width / 2;
+    const targetCamY = me.y - canvas.height / 2;
+    // Smooth camera toward player position
+    lastCamX += (targetCamX - lastCamX) * LERP_ALPHA;
+    lastCamY += (targetCamY - lastCamY) * LERP_ALPHA;
+    camX = lastCamX;
+    camY = lastCamY;
   } else if (!gameStarted) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
@@ -407,15 +414,34 @@ function drawScene(t) {
     drawShuriken(ctx, pickup.x - camX, pickup.y - camY + bob, pickup.radius, t / 1200);
   }
 
+  // Interpolate and render all players
+  // Also clean up entries for players no longer in state
+  const activeIds = new Set(state.players.map(p => p.id));
+  for (const id of renderPositions.keys()) {
+    if (!activeIds.has(id)) renderPositions.delete(id);
+  }
+
   for (const player of state.players) {
-    drawPlayer(ctx, player.x - camX, player.y - camY, player.radius, player.name, player.angle, player.skinId);
+    // Get or initialize smooth display position
+    if (!renderPositions.has(player.id)) {
+      renderPositions.set(player.id, { x: player.x, y: player.y });
+    }
+    const rp = renderPositions.get(player.id);
+    // Lerp display position toward server position
+    rp.x += (player.x - rp.x) * LERP_ALPHA;
+    rp.y += (player.y - rp.y) * LERP_ALPHA;
+
+    const rx = rp.x - camX;
+    const ry = rp.y - camY;
+
+    drawPlayer(ctx, rx, ry, player.radius, player.name, player.angle, player.skinId);
     const total = player.orbits.length;
     player.orbits.forEach((orbit, index) => {
       const angleOffset = (index / total) * Math.PI * 2;
       const angle = angleOffset + state.orbitClock;
       const radius = 45 + orbit.ring * 18;
-      const ox = player.x + Math.cos(angle) * radius - camX;
-      const oy = player.y + Math.sin(angle) * radius - camY;
+      const ox = rp.x + Math.cos(angle) * radius - camX;
+      const oy = rp.y + Math.sin(angle) * radius - camY;
       drawShuriken(ctx, ox, oy, 11, angle * 1.5);
     });
   }
@@ -471,7 +497,7 @@ export function startGame({ canvas: gameCanvas, ctx: gameCtx, socketApi: api }) 
 
   setInterval(() => {
     if (gameStarted) sendInput();
-  }, 100);
+  }, 50);
 
   requestAnimationFrame(loop);
 }
