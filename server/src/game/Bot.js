@@ -1,10 +1,14 @@
 const Player = require('./Player');
+const { BOT_LIFETIME_MIN_MS, BOT_LIFETIME_MAX_MS } = require('../../../shared/constants');
 
 class Bot extends Player {
   constructor(id, name, skinId) {
     super(id, name, skinId);
     this.isBot = true;
     this.decisionTimer = 0;
+    // Track when the bot was created and assign a random lifetime between min/max
+    this.spawnTime = Date.now();
+    this.lifetime = BOT_LIFETIME_MIN_MS + Math.floor(Math.random() * (BOT_LIFETIME_MAX_MS - BOT_LIFETIME_MIN_MS));
   }
 
   updateAI(room) {

@@ -86,6 +86,23 @@ class Room {
     }
   }
 
+  // Remove bots that exceeded their lifetime to reduce server load
+  cleanupBots() {
+    const now = Date.now();
+    const toRemove = [];
+    for (const p of this.players.values()) {
+      if (p.isBot && p.spawnTime && p.lifetime) {
+        if (now - p.spawnTime >= p.lifetime) {
+          toRemove.push(p.id);
+        }
+      }
+    }
+    for (const id of toRemove) {
+      this.removePlayer(id);
+      console.log(`Removed bot ${id} after lifetime expired`);
+    }
+  }
+
   handleInput(socketId, x, y, boost) {
     const player = this.players.get(socketId);
     if (!player) return;
@@ -233,6 +250,7 @@ class Room {
     this.checkCollisions();
     this.checkOrbitCollisions();
     this.checkPlayerHits();
+    this.cleanupBots();
     this.spawnBots();
     this.broadcastState();
   }

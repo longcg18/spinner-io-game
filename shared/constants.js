@@ -10,6 +10,10 @@ module.exports = {
   STRONG_PICKUP_CHANCE: 0.14,
   STRONG_ORBIT_HP: 2,
 
+  // Bot lifetime (random between min and max). Bots older than this are removed.
+  BOT_LIFETIME_MIN_MS: 5 * 60 * 1000, // 5 minutes
+  BOT_LIFETIME_MAX_MS: 10 * 60 * 1000, // 10 minutes
+
   ORBIT_RADIUS_BASE: 45,
   ORBIT_RADIUS_STEP: 18,
   ORBIT_ITEM_RADIUS: 11,
